@@ -1,0 +1,21 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[dev-packages]
+
+
+
+[packages]
+
+python-telegram-bot = "*"
+"Fabric3" = "==1.12.0.post1"
+croniter = "<0.3.20"
+
+
+[requires]
+
+python_version = "3.6"
