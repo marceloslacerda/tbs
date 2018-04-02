@@ -237,13 +237,14 @@ def subprocess_result_popen(
                 len(process_output) <= settings.MAX_PROCESS_OUTPUT
                 and proc.poll() is None
         ):
-            process_output += proc.stdout.read(100)
+            process_output += proc.stdout.read(settings.MAX_PROCESS_OUTPUT)
         timeout_end = proc.returncode == 124
         has_more_end = proc.returncode is None and len(process_output) > settings.MAX_PROCESS_OUTPUT
         process_error_end = proc.returncode not in (0, 124)
         if not has_more_end:
             process_output += proc.stdout.read(settings.MAX_PROCESS_OUTPUT - len(process_output))
     return process_output, proc.returncode, timeout_end, has_more_end, process_error_end
+
 
 def subprocess_result_async(
     runnable: List[str],

@@ -16,7 +16,7 @@ except KeyError:
           f' on how to run tbs.')
 
 DEFAULT_TIMEOUT = get_int_variable('TIMEOUT', 10)
-MAX_PROCESS_OUTPUT = get_int_variable('MAX_PROCESS_OUTPUT', 10 * 1024 * 1024)
+MAX_PROCESS_OUTPUT = get_int_variable('MAX_PROCESS_OUTPUT', 10 * 1024 * 1024)  # 10MB
 
 try:
     LOGLEVEL = getattr(logging, os.environ.get('LOGLEVEL', 'DEBUG'))
