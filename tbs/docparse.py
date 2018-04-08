@@ -99,7 +99,7 @@ def build_messages(content: Union[Iterable[Dict[str, Any]], str]) -> Iterable[Di
 
 
 def run_command(bot: telegram.Bot, update: telegram.update.Update, message: str, user: int) -> Iterable[Dict]:
-    parsed = parse_message(message, bot.first_name, bot.name)
+    parsed = parse_message(message, bot.first_name, bot.username)
     if isinstance(parsed, str):
         return build_messages(parsed)
     else:
@@ -123,13 +123,41 @@ def is_subcommand_help(parts: List[str]) -> bool:
 
 def parse_message(message: str, botname: str, botusername: str) ->\
         Union[Tuple[Dict[str, Any], str, Dict[str, Any]], str]:
-    # telegram auto-replaces -- with —
-    message = message.replace('—', '--').strip()
-    message = lower_message(message)
-    if acl.isbotmetioned(message, botname, botusername):
-        parts = shlex.split(message)[1:]
-    else:
-        parts = shlex.split(message)
+    """
+    Function that turns a telegram message into a runnable command
+
+    There are a few rules for the conversion:
+
+    a) A mention could be any name that's returned from bot_aliases
+    b) message is always treated as case insensitive unless if some parts are
+       quoted then they are left as it is.
+    c) Bot names can contain spaces.
+    d) Bot names can break the lexer so they should be sanitized before being
+       sent through.
+    e) -- is auto-replaced with — by telegram.
+    f) Commands can have --help and that should be respected.
+
+    Here are a few of the steps that must be run in this order:
+    1- Replace --
+    2- Clean whitespace v
+    3- Remove mentions case insensitive
+    4- Lowercase
+    5- Try parse to shell command
+    6- Handle Errors
+    7- Return parsed command
+    """
+    message = message.replace('—', '--').strip()  # 1 2
+    aliases = utils.bot_aliases(botname)
+    for alias in aliases:
+        alias = re.escape(alias)
+        message, n = re.subn(alias, '', message, 1)
+        if n == 1:
+            break
+    message = lower_message(message.strip())  # 4
+    try:
+        parts = shlex.split(message)  # 5
+    except ValueError as err:
+        return f'Could not parse message: {err.args[0]}'  # 6
     subscribe_commands()
     if parts[0] in commands:
         arguments = {f'<{strings.COMMAND_NOUN}>': parts[0],

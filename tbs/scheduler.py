@@ -30,9 +30,9 @@ def set_schedules(start_time=None):
 def execute(filename: str, bot: telegram.bot.Bot) -> Iterable[Dict]:
     logging.info(f'Starting schedule for: {filename}')
     chat = telegram.Chat(-1, 'private')
-    message = telegram.Message(-1, {'first_name': 'robot', 'last_name': ''}, datetime.datetime.now(), chat)
+    message = telegram.Message(-1, {'first_name': 'robot', 'last_name': None}, datetime.datetime.now(), chat)
     update = telegram.Update(-1, message=message)
-    result = tbs.docparse.run_command(bot, update, f"{bot.name} {filename.split('.')[0]}", -1)
+    result = tbs.docparse.run_command(bot, update, f"{bot.first_name} {filename.split('.')[0]}", -1)
     return result
 
 

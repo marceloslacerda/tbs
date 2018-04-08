@@ -7,5 +7,7 @@ def user_name(update: telegram.update.Update) -> str:
 
 
 def bot_aliases(botname: str) -> List[str]:
-    underscored = botname.replace("'", "").replace(" ", "_").lower()
-    return [underscored, underscored.replace('_', ''), botname]
+    botname_nosingle = botname.replace("'", "")
+    underscored = botname_nosingle.replace(" ", "_").lower()
+    return [underscored, underscored.replace('_', ''), botname_nosingle,
+            botname]

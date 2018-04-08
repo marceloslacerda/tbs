@@ -5,7 +5,7 @@ from tbs import utils
 from test.scripts import python, cronned
 
 BOTNAME = "Ro' Bot"
-HEADER = "Ro' Bot, also responds by ro_bot, robot, Ro' Bot"
+HEADER = "Ro' Bot, also responds by ro_bot, robot, Ro Bot, Ro' Bot"
 acl = 'a or b'
 json_output = True
 test_script_python = 'python'
@@ -51,7 +51,11 @@ class DocParseTestCase(unittest.TestCase):
         self.assertEqual(test_script_python, args['<command>'])
 
     def test_fullname_mention(self):
-        pass
+        parsed = docparse.parse_message(
+            f'{BOTNAME} {test_script_python} test-arg', BOTNAME, 'robot_bot')
+        args = parsed[2]
+        self.assertEqual(['test-arg'], args['<args>'])
+        self.assertEqual(test_script_python, args['<command>'])
 
     def test_parse_message_no_mention(self):
         parsed = docparse.parse_message(

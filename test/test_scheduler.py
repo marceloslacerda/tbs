@@ -16,11 +16,11 @@ class Bot(telegram.Bot):
 
     @property
     def first_name(self):
-        return 'Ro'
+        return 'robot'
 
     @property
     def last_name(self):
-        return 'Bot'
+        return None
 
     @property
     def username(self):
