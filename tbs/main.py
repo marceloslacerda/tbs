@@ -6,7 +6,7 @@ from . import telegram_callbacks
 from . import settings
 from .settings import TOKEN
 from telegram.ext import MessageHandler, Filters
-from telegram.ext import Updater, Job
+from telegram.ext import Updater
 
 from tbs.docparse import subscribe_commands
 from tbs.scheduler import set_schedules
@@ -30,9 +30,11 @@ def main():
     updater.start_polling(clean=True)
     logging.info('Set message log')
     j = updater.job_queue
-    j.put(Job(telegram_callbacks.timed_message, 5.0, repeat=True))
-    j.put(Job(telegram_callbacks.process_schedule, 60.0, repeat=True))
-    updater.bot.send_message(settings.DEFAULT_CHANNEL, tbs.strings.STARTUP_MESSAGE)
+    j.run_repeating(callback=telegram_callbacks.timed_message, interval=5)
+    j.run_repeating(callback=telegram_callbacks.process_schedule, interval=60)
+    updater.bot.send_message(
+        settings.DEFAULT_CHANNEL,
+        tbs.strings.STARTUP_MESSAGE)
 
     updater.idle()
 
