@@ -4,9 +4,9 @@ TBS: Telegram bot scaffolding
 
 TBS is a program/framework for building python bots for telegram.
 It's built upon `python-telegram-bot
-<https://github.com/python-telegram-bot/python-telegram-bot>`_. with added neat functionalities to make it
-easier to create and extend the power of bots for reporting and change the
-status of systems.
+<https://github.com/python-telegram-bot/python-telegram-bot>`_. with added neat
+functionalities to make it easier to create and extend the power of bots for
+reporting and change the status of your systems.
 
 Feature Support
 ---------------
@@ -28,79 +28,115 @@ Requirements
 Running
 -------
 
-This guide assumes that you will be running tbs on a linux machine with the
-requirements already installed. Adapt any of this to your necessities.
+There's an example repository with easy run instructions that you can adapt to
+your needs `here <https://github.com/marceloslacerda/tbs>`_.
 
-.. code-block:: bash
 
-    # create and cd to the project directory
-    mkdir -p my-bot/scripts/
-    cd my-bot
-    #Create a virtual environment for your project
-    mkvirtualenv -p /usr/local/bin/python3.6 my-bot-env
-    # Install tbs
-    pip install git+https://github.com/marceloslacerda/tbs.git
-    # Check how to get your token here: https://core.telegram.org/bots#3-how-do-i-create-a-bot
-    export TOKEN='your-telegram-token'
-    export LOGLEVEL=DEBUG
-    # See how to get the id of your channel here:
-    # https://stackoverflow.com/questions/36099709/how-get-right-telegram-channel-id
-    export DEFAULT_CHANNEL='-99999'
-    # How long tbs should wait before killing your commands (seconds)
-    export DEFAULT_TIMEOUT=10
-    echo '#!/bin/sh' > scripts/hello.sh
-    echo 'echo hello world :D' >> scripts/hello.sh
-    chmod +x scripts/hello.sh
-    # Add your bot as admin to the channel you want to use
-    run-tbs
+Environment variables
+---------------------
 
-At this point the bot will accept connections from anyone
-everywhere. Make sure to create a callbacks module based on the
-user_callbacks.py modle and export the CALLBACKS_MODULE variable.
+Of all variables only ``TOKEN`` is obligatory.
 
-Now your bot should respond *hello world :D* when you send hello to it
-through telegram.
+- ``TOKEN``
+
+  A token is essential to run a bot with Telegram.
+  The Telegram developer guide provides `instructions on how to obtain a token <https://core.telegram.org/bots#3-how-do-i-create-a-bot>`_.
+
+- ``DEFAULT_CHANNEL``
+
+  When DEFAULT_CHANNEL variable is set, the bot may send messages to you
+  whenever a specific event happens. Like when it logs in or when it captures a
+  message with the user_callback.external_messages function.
+  There's a
+  `question on Stackoverflow how to obtain a channel id <https://stackoverflow.com/questions/36099709/how-get-right-telegram-channel-id>`_.
+
+- ``DEFAULT_TIMEOUT``
+
+  ``DEFAULT_TIMEOUT`` specifies how long the bot will wait (seconds) for a command
+  to complete before killing it.
+  Currently the bot only sends a ``SIGTERM`` to the lagging command, so if it
+  requires some other signal, it's better to wrap it in a script that will send
+  the appropriate signal.
+
+  The default is 10 seconds.
+
+- ``MAX_PROCESS_OUTPUT``
+
+  This variable specifies the maximum output size in number of characters. If
+  the limit is reached the bot attempts to kill the command, the same
+  limitations as with ``DEFAULT_TIMEOUT`` apply.
+  The default is 10 MB of ASCII text (approximately 10 billion characters).
+
+- ``LOGLEVEL``
+
+  The log level of the bot by default the bot will print ``DEBUG`` messsages. If
+  in production it's recommended to set it to ``INFO``.
+
+- ``CALLBACKS_MODULE``
+
+  Set this to the name of a module in the ``PYTHONPATH`` to install some
+  callbacks in the bot. Check the documentation of the module tbs.user_callbacks
+  for instructions on how to use each function.
+
+- ``STRING_MODULE``
+
+  Set this to the name of a module in the ``PYTHONPATH`` to override the default
+  messages of the bot for ones of your choice.
 
 
 Command formats
 ---------------
 
-Commands are nothing more than simple python scripts or executables.
+Commands are nothing more than executable simple scripts, python or otherwise.
 
-All communication happens through ``stdout`` and command arguments in other words when you
-write in your chat:
+All communication happens through ``stdout`` and command arguments in other
+words when you write in your chat:
 
-mybot do-something arg1 arg2 ...
+mybot do_something arg1 arg2 ...
 
-What the bot does is, either ``python do-something.py arg1 arg2 ...``
-or ``./do-something arg1 arg2``
-wherever you executed ``run-tbs``.
+What the bot does is, either ``python -m scripts.do_something.py arg1 arg2 ...``
+or ``./do_something arg1 arg2`` wherever you executed ``run-tbs``.
 
-Everything that do-something prints in either ``stdout`` or ``stderr`` is displayed in the chat.
+Everything that do-something prints in either ``stdout`` or ``stderr``
+is sent through the bot.
+
+Please be aware that since python scripts are executed as a module, those
+scripts must be valid
+`python identifiers<https://docs.python.org/3/reference/lexical_analysis.html#identifiers>`_.
 
 Flags
 -----
 
-Commands can have flags that tbs uses to decides various aspects about the command execution:
+Commands can have flags that tbs uses to decides various aspects about the
+command execution:
 
-- ``acl`` : type str : default admin : Acl is interpreted as a boolean expression
+- ``acl`` : type str : default ``admin``
+
+    Acl is interpreted as a boolean expression in other words ``admin or owner``
+    means that the referring command can be executed by admins or owners,
+    ``admin and private`` means that the command should only be executed by
+    admins in a private channel.
+
+    There's no concept of user hierarchy built into the robot so if you wish
+    you must implement it with ``user_callbacks``.
 
     - **admin:** Set true when the user is admin.
     - **owner:** Set true when the user is owner.
     - **private:** Set true when sent through a private conversation.
     - **direct:** Set true when you call the bot by its name.
 
-    (either exactly as you write or spaces replaced for underscore and single quotes removed)
 
 - ``timeout`` : type int : default ``DEFAULT_TIMEOUT``
-    After ``timeout`` seconds the command is killed and a message is shown in the chat warning the user about the incident.
+    After ``timeout`` seconds the command is killed and a message is shown in
+    the chat warning the user about the incident. Overrides ``DEFAULT_TIMEOUT``.
 
-- ``schedule`` : type str : default None
-    Commands that set this variable are executed periodically in a similar manner to a task.
-    scheduled using cron
+- ``schedule`` : type str : default ``None``
+    Commands that set this variable are executed periodically in a similar
+    manner to a task scheduled using cron.
 
-- ``json_output`` : type Bool : default False
-    When set to true commands will be interpreted as JSON objects (useful for sending files).
+- ``json_output`` : type Bool : default ``False``
+    When set to true commands will be interpreted as JSON objects (useful for
+    sending files).
 
 JSON
 ----
