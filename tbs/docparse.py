@@ -33,7 +33,7 @@ def generate_help(robot_name: str, aliases: List[str]) -> str:
     buff = strings.PRELUDE.format(robot_name=robot_name, aliases=or_aliases, alias=aliases[0])
     for i in sorted(commands):
         buff += '    ' + i + '\n'
-    return buff + strings.END.format(alias=or_aliases)
+    return buff + strings.END.format(alias=aliases[0])
 
 
 def get_acl(text: str) -> str:
@@ -127,10 +127,9 @@ def parse_message(message: str, botname: str, botusername: str) ->\
     message = message.replace('—', '--').strip()
     message = lower_message(message)
     if acl.isbotmetioned(message, botname, botusername):
-        parts = shlex.split(message)
+        parts = shlex.split(message)[1:]
     else:
         parts = shlex.split(message)
-    parts = parts[1:]
     subscribe_commands()
     if parts[0] in commands:
         arguments = {f'<{strings.COMMAND_NOUN}>': parts[0],
