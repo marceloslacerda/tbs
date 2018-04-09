@@ -1,3 +1,11 @@
+"""
+This module contains most (hopefully all) builtin messages that are sent through
+telegram.
+
+Override the defaults by creating your own and setting the STRING_MODULE
+environment variable.
+"""
+
 import logging
 import sys
 import importlib
@@ -26,7 +34,10 @@ COMMAND_RETURN_SIZE_EXCEEDED = 'The command {command} has exceeded the output si
 PROCESS_DECODE_ERROR = 'Error while decoding the command {command} output'
 EXIT_STATUS_NON_ZERO = 'The command {command} finished with error code {error_code}'
 
-def setup_strings():
+
+def _setup_strings():
+    #  Internal function do not override or copy this into your own string
+    #  module.
     if STRING_MODULE is None:
         return
     try:
@@ -35,7 +46,8 @@ def setup_strings():
         logging.error(f'Error importing the string module {str(err)}')
         exit(-1)
     for name, value in globals().items():
-        if name.startswith('_') or name == 'STRING_MODULE' or name != name.upper():
+        if name.startswith('_') or name == 'STRING_MODULE'\
+                or name != name.upper():
             pass
         else:
             new_value = getattr(mod, name, value)

@@ -12,7 +12,7 @@ class StringsTestCase(unittest.TestCase):
         old_noun = tbs.strings.ARGUMENTS_NOUN
         self.assertNotEqual(old_noun, ARGUMENTS_NOUN)
         tbs.strings.STRING_MODULE = __name__
-        tbs.strings.setup_strings()
+        tbs.strings._setup_strings()
         new_noun = tbs.strings.ARGUMENTS_NOUN
         self.assertEqual(ARGUMENTS_NOUN, new_noun)
 

@@ -18,9 +18,9 @@ def main():
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=settings.LOGLEVEL)
-    tbs.strings.setup_strings()
+    tbs.strings._setup_strings()
 
-    user_callbacks.setup_callbacks()
+    user_callbacks._setup_callbacks()
     subscribe_commands()
     set_schedules()
     message_handler = MessageHandler(Filters.text,
