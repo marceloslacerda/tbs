@@ -1,6 +1,7 @@
 TBS: Telegram bot scaffolding
 =============================
 
+*DEPRECATED* This code is no longer maintained.
 
 TBS is a program/framework for building python bots for telegram.
 It's built upon `python-telegram-bot
